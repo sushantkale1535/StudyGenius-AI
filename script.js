@@ -1,3 +1,4 @@
+// DOM elements
 const pages = document.querySelectorAll(".page");
 const getStartedBtn = document.getElementById("getStartedBtn");
 const backToWelcomeLink = document.getElementById("backToWelcomeLink");
@@ -9,6 +10,7 @@ const dashboardTitle = document.getElementById("dashboardTitle");
 const dashboardUserPill = document.getElementById("dashboardUserPill");
 const goToUploadBtn = document.getElementById("goToUploadBtn");
 const goToQuizBtn = document.getElementById("goToQuizBtn");
+const goToSummaryPageBtn = document.getElementById("goToSummaryPageBtn");
 const backDashboardButtons = document.querySelectorAll(".backDashboardBtn");
 const pdfInput = document.getElementById("pdfInput");
 const selectedFileName = document.getElementById("selectedFileName");
@@ -35,68 +37,90 @@ const notesInput = document.getElementById("notesInput");
 const makeFlashcardsBtn = document.getElementById("makeFlashcardsBtn");
 const flashcardMessage = document.getElementById("flashcardMessage");
 const flashcardOutput = document.getElementById("flashcardOutput");
+// Summary elements
+const summaryPdfInput = document.getElementById("summaryPdfInput");
+const summaryFileName = document.getElementById("summaryFileName");
+const generateSummaryPageBtn = document.getElementById("generateSummaryPageBtn");
+const summaryPageLoader = document.getElementById("summaryPageLoader");
+const summaryResultCard = document.getElementById("summaryResultCard");
+const summaryPageText = document.getElementById("summaryPageText");
+const copySummaryBtn = document.getElementById("copySummaryBtn");
+const historyList = document.getElementById("historyList");
+// Logout button
+const logoutBtn = document.getElementById("logoutBtn");
 
-const defaultQuizData = [
-  {
-    question: "What is active recall?",
-    options: [
-      "Rereading notes until they feel familiar",
-      "Testing yourself before looking at the answer",
-      "Highlighting every important sentence",
-      "Listening to a lecture at double speed"
-    ],
-    correctIndex: 1
-  },
-  {
-    question: "Which habit best supports spaced repetition?",
-    options: [
-      "Reviewing all material only the night before",
-      "Studying the easiest topics first every time",
-      "Returning to information at planned intervals",
-      "Copying notes without checking understanding"
-    ],
-    correctIndex: 2
-  },
-  {
-    question: "Why are practice quizzes useful for studying?",
-    options: [
-      "They replace all reading and note-taking",
-      "They make weak areas visible quickly",
-      "They work only after perfect memorization",
-      "They prevent the need for feedback"
-    ],
-    correctIndex: 1
-  }
+// ---------- DEMO STUDENT ACCOUNTS (5 users) ----------
+const demoUsers = [
+  { email: "student1@study.com", password: "pass123", name: "Student One" },
+  { email: "student2@study.com", password: "pass123", name: "Student Two" },
+  { email: "student3@study.com", password: "pass123", name: "Student Three" },
+  { email: "student4@study.com", password: "pass123", name: "Student Four" },
+  { email: "student5@study.com", password: "pass123", name: "Student Five" }
 ];
 
-let storedUserId = "Demo Learner";
+let currentUser = null;
+
+// ---------- DEFAULT 20‑QUESTION QUIZ (fallback) ----------
+function generate20Quiz() {
+  const topics = [
+    "Active recall", "Spaced repetition", "Interleaving", "Elaboration", "Concrete examples",
+    "Dual coding", "Metacognition", "Retrieval practice", "Self-explanation", "Summarization",
+    "Highlighting (ineffective)", "Rereading (ineffective)", "Mnemonics", "Chunking", "Pomodoro technique",
+    "Growth mindset", "Fixed mindset", "Cognitive load", "Working memory", "Long-term potentiation"
+  ];
+  const questions = [];
+  for (let i = 0; i < 20; i++) {
+    const topic = topics[i % topics.length];
+    questions.push({
+      question: `What is the key concept of "${topic}" in learning science?`,
+      options: [
+        `A method to improve memory by ${topic === "Active recall" ? "testing yourself" : "repetition"}`,
+        `A study technique that ${topic === "Spaced repetition" ? "spreads out review sessions" : "involves practice"}`,
+        `An approach that ${topic === "Metacognition" ? "thinks about one's own thinking" : "enhances understanding"}`,
+        `A strategy that ${topic === "Growth mindset" ? "believes abilities can develop" : "is often misunderstood"}`
+      ],
+      correctIndex: i % 4
+    });
+  }
+  return questions;
+}
+
+const defaultQuizData = generate20Quiz();
+
 let quizData = [...defaultQuizData];
 let currentQuestionIndex = 0;
 let score = 0;
 let answerSelected = false;
-let currentQuizSource = "Default study skills";
+let currentQuizSource = "Default 20‑question quiz";
 
+// ---------- PAGE NAVIGATION with auth check ----------
 function showPage(pageId) {
-  pages.forEach((page) => {
+  const protectedPages = ["page3", "page4", "page5", "page6"];
+  if (protectedPages.includes(pageId) && !currentUser) {
+    pageId = "page2";
+  }
+  pages.forEach(page => {
     const isActive = page.id === pageId;
     page.classList.toggle("active", isActive);
     page.setAttribute("aria-hidden", String(!isActive));
   });
-
   window.scrollTo({ top: 0, behavior: "smooth" });
-
   if (pageId === "page3") {
     updateDashboardGreeting();
+    renderSummaryHistory();
   }
-
-  if (pageId === "page5") {
-    renderCurrentQuestion();
-  }
+  if (pageId === "page5") renderCurrentQuestion();
+  if (pageId === "page6") renderSummaryHistory();
 }
 
 function updateDashboardGreeting() {
-  dashboardTitle.textContent = `Welcome back, ${storedUserId}`;
-  dashboardUserPill.innerHTML = `<i class="fa-solid fa-user-astronaut" aria-hidden="true"></i>${storedUserId}`;
+  if (currentUser) {
+    dashboardTitle.textContent = `Welcome back, ${currentUser.name}`;
+    dashboardUserPill.innerHTML = `<i class="fa-solid fa-user-astronaut"></i>${currentUser.name}`;
+  } else {
+    dashboardTitle.textContent = `Welcome back, Guest`;
+    dashboardUserPill.innerHTML = `<i class="fa-solid fa-user-astronaut"></i>Guest`;
+  }
 }
 
 function resetQuizState() {
@@ -109,147 +133,64 @@ function resetQuizState() {
 }
 
 function renderCurrentQuestion() {
-  if (currentQuestionIndex >= quizData.length) {
-    showFinalScore();
-    return;
-  }
-
+  if (currentQuestionIndex >= quizData.length) { showFinalScore(); return; }
   const currentQuestion = quizData[currentQuestionIndex];
   answerSelected = false;
   nextQuestionBtn.disabled = true;
-  nextQuestionBtn.innerHTML = `<i class="fa-solid fa-forward" aria-hidden="true"></i>Next Question`;
+  nextQuestionBtn.innerHTML = `<i class="fa-solid fa-forward"></i>Next Question`;
   quizContent.classList.remove("hidden");
   resultPanel.classList.remove("show");
-
-  questionCounter.innerHTML = `<i class="fa-solid fa-list-ol" aria-hidden="true"></i>Question ${currentQuestionIndex + 1} of ${quizData.length}`;
-  scoreDisplay.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i>Score: ${score} / ${quizData.length}`;
-  quizSource.innerHTML = `<i class="fa-solid fa-layer-group" aria-hidden="true"></i>${currentQuizSource}`;
+  questionCounter.innerHTML = `<i class="fa-solid fa-list-ol"></i>Question ${currentQuestionIndex+1} of ${quizData.length}`;
+  scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i>Score: ${score} / ${quizData.length}`;
+  quizSource.innerHTML = `<i class="fa-solid fa-layer-group"></i>${currentQuizSource}`;
   questionText.textContent = currentQuestion.question;
-  progressFill.style.width = `${(currentQuestionIndex / quizData.length) * 100}%`;
-
+  progressFill.style.width = `${(currentQuestionIndex/quizData.length)*100}%`;
   optionsContainer.innerHTML = "";
-  currentQuestion.options.forEach((option, index) => {
-    const optionButton = document.createElement("button");
-    const optionLetter = document.createElement("span");
-    const optionText = document.createElement("span");
-
-    optionButton.type = "button";
-    optionButton.className = "option-btn";
-    optionLetter.className = "option-letter";
-    optionLetter.textContent = String.fromCharCode(65 + index);
-    optionText.textContent = option;
-
-    optionButton.append(optionLetter, optionText);
-    optionButton.addEventListener("click", () => selectAnswer(index));
-    optionsContainer.appendChild(optionButton);
+  currentQuestion.options.forEach((option, idx) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "option-btn";
+    const letterSpan = document.createElement("span");
+    letterSpan.className = "option-letter";
+    letterSpan.textContent = String.fromCharCode(65+idx);
+    const textSpan = document.createElement("span");
+    textSpan.textContent = option;
+    btn.append(letterSpan, textSpan);
+    btn.addEventListener("click", () => selectAnswer(idx));
+    optionsContainer.appendChild(btn);
   });
 }
 
 function selectAnswer(selectedIndex) {
-  if (answerSelected) {
-    return;
-  }
-
+  if (answerSelected) return;
   const currentQuestion = quizData[currentQuestionIndex];
-  const optionButtons = optionsContainer.querySelectorAll(".option-btn");
+  const buttons = optionsContainer.querySelectorAll(".option-btn");
   answerSelected = true;
-
-  optionButtons.forEach((button, index) => {
-    button.disabled = true;
-
-    if (index === currentQuestion.correctIndex) {
-      button.classList.add("correct");
-    }
-
-    if (index === selectedIndex && selectedIndex !== currentQuestion.correctIndex) {
-      button.classList.add("wrong");
-    }
+  buttons.forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === currentQuestion.correctIndex) btn.classList.add("correct");
+    if (idx === selectedIndex && selectedIndex !== currentQuestion.correctIndex) btn.classList.add("wrong");
   });
-
-  if (selectedIndex === currentQuestion.correctIndex) {
-    score += 1;
-  }
-
-  scoreDisplay.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i>Score: ${score} / ${quizData.length}`;
+  if (selectedIndex === currentQuestion.correctIndex) score++;
+  scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i>Score: ${score} / ${quizData.length}`;
   nextQuestionBtn.disabled = false;
-
-  if (currentQuestionIndex === quizData.length - 1) {
-    nextQuestionBtn.innerHTML = `<i class="fa-solid fa-flag-checkered" aria-hidden="true"></i>View Results`;
-  }
+  if (currentQuestionIndex === quizData.length-1) nextQuestionBtn.innerHTML = `<i class="fa-solid fa-flag-checkered"></i>View Results`;
 }
 
 function showFinalScore() {
-  const percent = Math.round((score / quizData.length) * 100);
-  const message = percent >= 80
-    ? "Strong work. Your recall is looking sharp."
-    : percent >= 50
-      ? "Nice progress. Review the missed ideas, then try again."
-      : "Good start. A quick review pass will make the next run stronger.";
-
+  const percent = Math.round((score/quizData.length)*100);
+  const message = percent >= 80 ? "Excellent! You've mastered this material." : percent >= 50 ? "Good effort. Review and try again!" : "Keep practicing – you'll get there!";
   quizContent.classList.add("hidden");
   resultPanel.classList.add("show");
   progressFill.style.width = "100%";
-  questionCounter.innerHTML = `<i class="fa-solid fa-list-ol" aria-hidden="true"></i>Completed`;
-  scoreDisplay.innerHTML = `<i class="fa-solid fa-star" aria-hidden="true"></i>Score: ${score} / ${quizData.length}`;
-  finalScoreTitle.textContent = `Final Score: ${score} / ${quizData.length}`;
-  finalScoreMessage.textContent = `${message} Use the notes-to-flashcards option here to turn key notes into quick review cards.`;
+  questionCounter.innerHTML = `<i class="fa-solid fa-list-ol"></i>Completed`;
+  scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i>Score: ${score} / ${quizData.length}`;
+  finalScoreTitle.textContent = `Final Score: ${score} / ${quizData.length} (${percent}%)`;
+  finalScoreMessage.textContent = `${message} Use the notes-to-flashcards tool to create more cards.`;
 }
 
 function buildGeneratedQuiz(fileName) {
-  const tidyName = fileName.replace(/\.pdf$/i, "") || "your notes";
-
-  return [
-    {
-      question: `For "${tidyName}", what should an AI flashcard focus on first?`,
-      options: [
-        "Decorative page colors",
-        "Core ideas and testable facts",
-        "The PDF file size only",
-        "Unrelated trivia"
-      ],
-      correctIndex: 1
-    },
-    {
-      question: "Which prompt helps StudyGenius create better quiz questions from notes?",
-      options: [
-        "Make everything vague",
-        "Ignore definitions",
-        "Turn key concepts into answerable questions",
-        "Use only random dates"
-      ],
-      correctIndex: 2
-    },
-    {
-      question: "What makes a flashcard effective for active recall?",
-      options: [
-        "A clear front question and a concise back answer",
-        "A full textbook chapter on one side",
-        "Only images with no meaning",
-        "A question that has no answer"
-      ],
-      correctIndex: 0
-    },
-    {
-      question: "When reviewing AI-generated flashcards, what should you do with weak cards?",
-      options: [
-        "Delete them immediately",
-        "Guess once and never revisit",
-        "Move them into shorter review intervals",
-        "Hide the answer forever"
-      ],
-      correctIndex: 2
-    },
-    {
-      question: "Which study strategy pairs best with a generated quiz?",
-      options: [
-        "Checking feedback after each attempt",
-        "Avoiding mistakes at all costs",
-        "Studying without breaks for an entire day",
-        "Skipping every difficult question"
-      ],
-      correctIndex: 0
-    }
-  ];
+  return generate20Quiz();
 }
 
 function setGenerationLoading(isLoading) {
@@ -257,20 +198,36 @@ function setGenerationLoading(isLoading) {
   generationLoader.classList.toggle("show", isLoading);
 }
 
-function handleQuizGeneration() {
-  const selectedFile = pdfInput.files[0];
-
-  if (!selectedFile) {
-    alert("Please select a PDF file first.");
-    return;
-  }
-
+// ---------- REAL API QUIZ GENERATION (with fallback) ----------
+async function handleQuizGeneration() {
+  const file = pdfInput.files[0];
+  if (!file) { alert("Please select a PDF file first."); return; }
   setGenerationLoading(true);
   generationSuccess.classList.remove("show");
 
-  setTimeout(() => {
-    quizData = buildGeneratedQuiz(selectedFile.name);
-    currentQuizSource = `Generated from ${selectedFile.name}`;
+  const formData = new FormData();
+  formData.append("pdf", file);
+  const API_URL = "https://studygenius-ai-mmek.onrender.com/upload";
+
+  try {
+    const response = await fetch(API_URL, { method: "POST", body: formData });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+      quizData = data.questions.map(q => ({
+        question: q.question,
+        options: q.options,
+        correctIndex: q.correctIndex
+      }));
+      currentQuizSource = `Generated from ${file.name}`;
+    } else {
+      throw new Error("Invalid API response – using 20‑question demo");
+    }
+  } catch (err) {
+    console.warn("API quiz failed, falling back to demo:", err);
+    quizData = buildGeneratedQuiz(file.name);
+    currentQuizSource = `Demo 20‑question quiz from ${file.name}`;
+  } finally {
     currentQuestionIndex = 0;
     score = 0;
     answerSelected = false;
@@ -278,120 +235,211 @@ function handleQuizGeneration() {
     quizGeneratedNotice.classList.add("show");
     quizGeneratedNotice.textContent = "✅ AI generated quiz from your notes!";
     setGenerationLoading(false);
-
-    setTimeout(() => {
-      showPage("page5");
-    }, 450);
-  }, 300);
+    setTimeout(() => showPage("page5"), 450);
+  }
 }
 
 function handleFileSelection() {
-  const selectedFile = pdfInput.files[0];
-
+  const file = pdfInput.files[0];
   selectedFileName.classList.remove("error");
   generationSuccess.classList.remove("show");
-
-  if (!selectedFile) {
-    selectedFileName.textContent = "No PDF selected yet.";
-    return;
-  }
-
-  const isPdf = selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf");
-
+  if (!file) { selectedFileName.textContent = "No PDF selected yet."; return; }
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
   if (!isPdf) {
     selectedFileName.textContent = "Only PDF files are supported.";
     selectedFileName.classList.add("error");
     pdfInput.value = "";
     return;
   }
-
-  selectedFileName.textContent = selectedFile.name;
+  selectedFileName.textContent = file.name;
 }
 
 function createFlashcardsFromNotes() {
-  const rawNotes = notesInput.value.trim();
+  const raw = notesInput.value.trim();
   flashcardOutput.innerHTML = "";
-  flashcardMessage.classList.remove("show", "error");
-
-  if (!rawNotes) {
-    flashcardMessage.textContent = "Add a few notes first.";
-    flashcardMessage.classList.add("show", "error");
-    return;
-  }
-
-  const sentences = rawNotes
-    .split(/[\n.!?]+/)
-    .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length > 8)
-    .slice(0, 4);
-
-  const flashcards = sentences.length ? sentences : [rawNotes];
-
-  flashcards.forEach((sentence, index) => {
+  flashcardMessage.classList.remove("show","error");
+  if (!raw) { flashcardMessage.textContent = "Add a few notes first."; flashcardMessage.classList.add("show","error"); return; }
+  const sentences = raw.split(/[\n.!?]+/).map(s=>s.trim()).filter(s=>s.length>8).slice(0,6);
+  const flashcards = sentences.length ? sentences : [raw];
+  flashcards.forEach((sent, i) => {
     const row = document.createElement("div");
-    const front = document.createElement("strong");
-    const back = document.createElement("span");
-    const shortAnswer = sentence.length > 150 ? `${sentence.slice(0, 147)}...` : sentence;
-
     row.className = "flashcard-row";
-    front.textContent = `Flashcard ${index + 1}: What is the key idea?`;
-    back.textContent = shortAnswer;
-    row.append(front, back);
+    const strong = document.createElement("strong");
+    strong.textContent = `Flashcard ${i+1}: What is the key idea?`;
+    const span = document.createElement("span");
+    span.textContent = sent.length>150 ? sent.slice(0,147)+"..." : sent;
+    row.append(strong, span);
     flashcardOutput.appendChild(row);
   });
-
   flashcardMessage.textContent = "AI-style flashcards created from your notes.";
   flashcardMessage.classList.add("show");
 }
 
-getStartedBtn.addEventListener("click", () => showPage("page2"));
-
-backToWelcomeLink.addEventListener("click", (event) => {
-  event.preventDefault();
-  showPage("page1");
-});
-
-loginForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const enteredUserId = userIdInput.value.trim();
-  const enteredPassword = passwordInput.value.trim();
-
-  if (!enteredUserId || !enteredPassword) {
-    loginError.classList.add("show");
+// ---------- SUMMARY GENERATION (real API + history) ----------
+function handleSummaryPageFileSelection() {
+  const file = summaryPdfInput.files[0];
+  if (!file) { summaryFileName.textContent = "No PDF selected."; return; }
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if (!isPdf) {
+    summaryFileName.textContent = "Only PDF files are supported.";
+    summaryFileName.classList.add("error");
+    summaryPdfInput.value = "";
     return;
   }
+  summaryFileName.textContent = file.name;
+  summaryFileName.classList.remove("error");
+}
 
-  storedUserId = enteredUserId;
-  loginError.classList.remove("show");
-  showPage("page3");
+async function handleGenerateSummary() {
+  const file = summaryPdfInput.files[0];
+  if (!file) { alert("Please select a PDF file first."); return; }
+  summaryPageLoader.classList.add("show");
+  summaryResultCard.style.display = "none";
+  const formData = new FormData();
+  formData.append("pdf", file);
+  const SUMMARY_API = "https://studygenius-ai-mmek.onrender.com/summarize";
+  try {
+    const response = await fetch(SUMMARY_API, { method: "POST", body: formData });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const summary = data.summary || "No summary generated.";
+    summaryPageText.textContent = summary;
+    summaryResultCard.style.display = "block";
+    const history = JSON.parse(localStorage.getItem("summaryHistory") || "[]");
+    history.unshift({ text: summary, date: new Date().toLocaleString(), fileName: file.name });
+    if (history.length > 10) history.pop();
+    localStorage.setItem("summaryHistory", JSON.stringify(history));
+    renderSummaryHistory();
+  } catch (err) {
+    console.error("Summary failed:", err);
+    alert("Summary generation failed. Please try again later.");
+  } finally {
+    summaryPageLoader.classList.remove("show");
+  }
+}
+
+function renderSummaryHistory() {
+  if (!historyList) return;
+  const history = JSON.parse(localStorage.getItem("summaryHistory") || "[]");
+  if (history.length === 0) {
+    historyList.innerHTML = "<p style='color:var(--muted)'>No summaries yet. Generate one above.</p>";
+    return;
+  }
+  historyList.innerHTML = history.map((item, idx) => `
+    <div class="history-item" data-idx="${idx}">
+      <strong>${escapeHtml(item.fileName)}</strong>
+      <span class="history-date">${escapeHtml(item.date)}</span>
+      <span class="history-summary">${escapeHtml(item.text.substring(0, 120))}${item.text.length > 120 ? "…" : ""}</span>
+    </div>
+  `).join("");
+  document.querySelectorAll(".history-item").forEach(el => {
+    el.addEventListener("click", () => {
+      const idx = parseInt(el.dataset.idx, 10);
+      const selected = history[idx];
+      if (selected) {
+        summaryPageText.textContent = selected.text;
+        summaryResultCard.style.display = "block";
+      }
+    });
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === "&") return "&amp;";
+    if (m === "<") return "&lt;";
+    if (m === ">") return "&gt;";
+    return m;
+  });
+}
+
+function copySummaryToClipboard() {
+  const text = summaryPageText.textContent;
+  if (!text || text === "No summary generated.") return;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Summary copied to clipboard!");
+  }).catch(() => alert("Could not copy. Press Ctrl+C manually."));
+}
+
+// ---------- CAROUSEL LOGIC (auto-slide) ----------
+let currentSlide = 0;
+const slides = document.querySelectorAll(".carousel-slide");
+const prevBtn = document.querySelector(".carousel-prev");
+const nextBtn = document.querySelector(".carousel-next");
+function showSlide(index) {
+  slides.forEach((s, i) => s.classList.toggle("active", i === index));
+}
+if (prevBtn && nextBtn && slides.length) {
+  prevBtn.addEventListener("click", () => {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  });
+  nextBtn.addEventListener("click", () => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  });
+  showSlide(0);
+  setInterval(() => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }, 6000);
+}
+
+// ---------- LOGIN / LOGOUT LOGIC ----------
+function handleLogin(email, password) {
+  const user = demoUsers.find(u => u.email === email && u.password === password);
+  if (user) {
+    currentUser = { email: user.email, name: user.name };
+    loginError.classList.remove("show");
+    showPage("page3");
+    return true;
+  } else {
+    loginError.classList.add("show");
+    return false;
+  }
+}
+
+function handleLogout() {
+  currentUser = null;
+  quizData = [...defaultQuizData];
+  currentQuizSource = "Default 20‑question quiz";
+  currentQuestionIndex = 0;
+  score = 0;
+  answerSelected = false;
+  showPage("page2");
+}
+
+// ---------- EVENT LISTENERS ----------
+getStartedBtn.addEventListener("click", () => showPage("page2"));
+backToWelcomeLink.addEventListener("click", (e) => { e.preventDefault(); showPage("page1"); });
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = userIdInput.value.trim();
+  const pwd = passwordInput.value.trim();
+  handleLogin(email, pwd);
 });
-
 goToUploadBtn.addEventListener("click", () => showPage("page4"));
 goToQuizBtn.addEventListener("click", () => showPage("page5"));
-backDashboardButtons.forEach((button) => button.addEventListener("click", () => showPage("page3")));
+if (goToSummaryPageBtn) goToSummaryPageBtn.addEventListener("click", () => showPage("page6"));
+backDashboardButtons.forEach(btn => btn.addEventListener("click", () => showPage("page3")));
 pdfInput.addEventListener("change", handleFileSelection);
 generateQuizBtn.addEventListener("click", handleQuizGeneration);
-
 nextQuestionBtn.addEventListener("click", () => {
-  currentQuestionIndex += 1;
-
-  if (currentQuestionIndex >= quizData.length) {
-    showFinalScore();
-    return;
-  }
-
-  renderCurrentQuestion();
+  currentQuestionIndex++;
+  if (currentQuestionIndex >= quizData.length) showFinalScore();
+  else renderCurrentQuestion();
 });
-
 restartQuizBtn.addEventListener("click", resetQuizState);
 playAgainBtn.addEventListener("click", resetQuizState);
 makeFlashcardsBtn.addEventListener("click", createFlashcardsFromNotes);
+focusFlashcardsBtn.addEventListener("click", () => { notesFlashcardTool.scrollIntoView({ behavior: "smooth", block: "center" }); notesInput.focus(); });
+if (summaryPdfInput) summaryPdfInput.addEventListener("change", handleSummaryPageFileSelection);
+if (generateSummaryPageBtn) generateSummaryPageBtn.addEventListener("click", handleGenerateSummary);
+if (copySummaryBtn) copySummaryBtn.addEventListener("click", copySummaryToClipboard);
+if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
 
-focusFlashcardsBtn.addEventListener("click", () => {
-  notesFlashcardTool.scrollIntoView({ behavior: "smooth", block: "center" });
-  notesInput.focus();
-});
-
+// Initial render
 updateDashboardGreeting();
 renderCurrentQuestion();
+renderSummaryHistory();
+showPage("page1");
