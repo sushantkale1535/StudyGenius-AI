@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="StudyGenius is an AI-powered study assistant demo for flashcards, PDF quiz generation, and active recall practice.">
+  <meta name="description" content="StudyGenius is an AI-powered study assistant for flashcards, quizzes, and summaries from your notes.">
   <title>StudyGenius | AI Study Assistant</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,296 +11,204 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <!-- ==================== HTML CODE ==================== -->
-  <main class="app">
-    <div id="page1" class="page page-welcome active" aria-hidden="false">
-      <section class="welcome-content" aria-labelledby="welcomeTitle">
-        <div class="brand-chip">
-          <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-          AI Study Assistant
+<main class="app">
+  <!-- PAGE 1: WELCOME -->
+  <div id="page1" class="page page-welcome active" aria-hidden="false">
+    <section class="welcome-content">
+      <div class="brand-chip"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Study Assistant</div>
+      <h1 class="welcome-title">StudyGenius</h1>
+      <p class="welcome-subtitle">AI-powered flashcards, quizzes & summaries from your notes</p>
+      <button id="getStartedBtn" class="btn btn-primary"><i class="fa-solid fa-arrow-right"></i> Get Started</button>
+    </section>
+  </div>
+
+  <!-- PAGE 2: LOGIN -->
+  <div id="page2" class="page auth-page" aria-hidden="true">
+    <section class="auth-shell">
+      <div class="auth-card glass-card">
+        <div class="app-logo"><i class="fa-solid fa-graduation-cap"></i> StudyGenius</div>
+        <p class="section-kicker">Demo Login</p>
+        <h2>Sign in to your study space</h2>
+        <p class="section-copy">Enter any user ID and password to continue in demo mode.</p>
+        <form id="loginForm" class="form-grid" novalidate>
+          <div class="field">
+            <label for="userIdInput">User ID / Email</label>
+            <div class="input-wrap"><i class="fa-solid fa-envelope"></i><input id="userIdInput" type="text" placeholder="name@example.com"></div>
+          </div>
+          <div class="field">
+            <label for="passwordInput">Password</label>
+            <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="passwordInput" type="password" placeholder="Enter password"></div>
+          </div>
+          <p id="loginError" class="error-message">Please enter both User ID / Email and Password.</p>
+          <button class="btn btn-accent" type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+        </form>
+        <a id="backToWelcomeLink" class="text-link" href="#page1"><i class="fa-solid fa-arrow-left"></i> Back to Welcome</a>
+      </div>
+    </section>
+  </div>
+
+  <!-- PAGE 3: DASHBOARD (redesigned with 3 action cards and carousel) -->
+  <div id="page3" class="page page-app" aria-hidden="true">
+    <div class="page-shell">
+      <header class="top-bar">
+        <button class="top-brand top-brand-button" type="button"><i class="fa-solid fa-graduation-cap"></i> StudyGenius</button>
+        <span id="dashboardUserPill" class="user-pill"><i class="fa-solid fa-user-astronaut"></i> Demo Learner</span>
+      </header>
+      <section class="dashboard-hero">
+        <div class="dashboard-copy">
+          <p class="section-kicker">Dashboard</p>
+          <h2 id="dashboardTitle" class="section-title">Welcome back, Demo Learner</h2>
+          <p class="section-copy">Upload PDF notes, generate AI quizzes and summaries, and master your topics with active recall.</p>
         </div>
-        <h1 id="welcomeTitle" class="welcome-title">StudyGenius</h1>
-        <p class="welcome-subtitle">AI-powered flashcards &amp; quizzes from your notes</p>
-        <button id="getStartedBtn" class="btn btn-primary" type="button">
-          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-          Get Started
+        <div class="dashboard-photo-wrap">
+          <img class="dashboard-photo" src="https://images.pexels.com/photos/4144224/pexels-photo-4144224.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Student studying">
+        </div>
+      </section>
+      <section class="stats-grid">
+        <div class="stat-card"><span class="stat-icon"><i class="fa-solid fa-book-open"></i></span><div><strong>3</strong><span>notes uploaded</span></div></div>
+        <div class="stat-card"><span class="stat-icon"><i class="fa-solid fa-sparkles"></i></span><div><strong>2</strong><span>quizzes generated</span></div></div>
+        <div class="stat-card"><span class="stat-icon"><i class="fa-solid fa-trophy"></i></span><div><strong>85%</strong><span>average score</span></div></div>
+      </section>
+
+      <!-- Enhanced Carousel with smooth transitions -->
+      <section class="carousel-section" aria-label="Study Tips Carousel">
+        <div class="carousel-container">
+          <div class="carousel-slide active">
+            <i class="fa-solid fa-lightbulb"></i>
+            <p>Active recall boosts long‑term memory by 50%.</p>
+          </div>
+          <div class="carousel-slide">
+            <i class="fa-solid fa-clock"></i>
+            <p>Spaced repetition: review after 1 day, 3 days, then 1 week.</p>
+          </div>
+          <div class="carousel-slide">
+            <i class="fa-solid fa-brain"></i>
+            <p>Convert notes to flashcards for faster revision.</p>
+          </div>
+          <div class="carousel-slide">
+            <i class="fa-solid fa-chart-line"></i>
+            <p>Self‑testing with quizzes reveals weak spots instantly.</p>
+          </div>
+          <button class="carousel-prev" aria-label="Previous slide">❮</button>
+          <button class="carousel-next" aria-label="Next slide">❯</button>
+        </div>
+      </section>
+
+      <!-- Three action cards (now 3 columns) -->
+      <section class="dashboard-actions">
+        <button id="goToUploadBtn" class="dashboard-card">
+          <span class="card-icon"><i class="fa-solid fa-file-pdf"></i></span>
+          <span>
+            <span class="card-title">Upload Notes PDF</span>
+            <span class="card-text">Send a PDF to generate AI flashcards & quiz.</span>
+          </span>
+        </button>
+        <button id="goToQuizBtn" class="dashboard-card">
+          <span class="card-icon"><i class="fa-solid fa-brain"></i></span>
+          <span>
+            <span class="card-title">AI Flashcard Quiz</span>
+            <span class="card-text">Practice with 4 options, instant feedback & score.</span>
+          </span>
+        </button>
+        <button id="goToSummaryPageBtn" class="dashboard-card">
+          <span class="card-icon"><i class="fa-solid fa-file-lines"></i></span>
+          <span>
+            <span class="card-title">AI Summary</span>
+            <span class="card-text">View and manage your AI‑generated summaries.</span>
+          </span>
         </button>
       </section>
     </div>
+  </div>
 
-    <div id="page2" class="page auth-page" aria-hidden="true">
-      <section class="auth-shell" aria-labelledby="loginTitle">
-        <div class="auth-card glass-card">
-          <div class="app-logo">
-            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
-            StudyGenius
+  <!-- PAGE 4: UPLOAD (quiz generation) -->
+  <div id="page4" class="page page-app" aria-hidden="true">
+    <div class="page-shell">
+      <header class="top-bar">
+        <button class="top-brand top-brand-button backDashboardBtn" type="button"><i class="fa-solid fa-graduation-cap"></i> StudyGenius</button>
+        <button class="btn btn-ghost btn-small backDashboardBtn" type="button"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+      </header>
+      <section>
+        <p class="section-kicker">AI Quiz Builder</p>
+        <h2 class="section-title">Upload Your Notes (PDF)</h2>
+        <p class="section-copy">Select a PDF file – our AI will generate a custom quiz with flashcards.</p>
+        <div class="upload-card">
+          <div class="upload-zone">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <label class="file-control" for="pdfInput"><i class="fa-solid fa-folder-open"></i> Choose PDF<input id="pdfInput" type="file" accept=".pdf,application/pdf"></label>
+            <p id="selectedFileName" class="file-name">No PDF selected yet.</p>
           </div>
-          <p class="section-kicker">Demo Login</p>
-          <h2 id="loginTitle">Sign in to your study space</h2>
-          <p class="section-copy">Enter any user ID and password to continue in demo mode.</p>
-
-          <form id="loginForm" class="form-grid" novalidate>
-            <div class="field">
-              <label for="userIdInput">User ID / Email</label>
-              <div class="input-wrap">
-                <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-                <input id="userIdInput" type="text" autocomplete="username" placeholder="name@example.com">
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="passwordInput">Password</label>
-              <div class="input-wrap">
-                <i class="fa-solid fa-lock" aria-hidden="true"></i>
-                <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Enter password">
-              </div>
-            </div>
-
-            <p id="loginError" class="error-message" role="alert">Please enter both User ID / Email and Password.</p>
-
-            <button class="btn btn-accent" type="submit">
-              <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
-              Login
-            </button>
-          </form>
-
-          <a id="backToWelcomeLink" class="text-link" href="#page1">
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-            Back to Welcome
-          </a>
+          <div class="button-row">
+            <button id="generateQuizBtn" class="btn btn-accent" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Flashcards & Quiz</button>
+            <button class="btn btn-ghost backDashboardBtn" type="button"><i class="fa-solid fa-table-columns"></i> Back to Dashboard</button>
+          </div>
+          <div id="generationLoader" class="loader-row"><span class="spinner"></span> Building your AI flashcards...</div>
+          <p id="generationSuccess" class="success-message">✅ AI generated quiz from your notes!</p>
         </div>
       </section>
     </div>
+  </div>
 
-    <div id="page3" class="page page-app" aria-hidden="true">
-      <div class="page-shell">
-        <header class="top-bar">
-          <button class="top-brand top-brand-button" type="button" aria-label="StudyGenius dashboard">
-            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
-            StudyGenius
-          </button>
-          <span id="dashboardUserPill" class="user-pill">
-            <i class="fa-solid fa-user-astronaut" aria-hidden="true"></i>
-            Demo Learner
-          </span>
-        </header>
-
-        <section class="dashboard-hero" aria-labelledby="dashboardTitle">
-          <div class="dashboard-copy">
-            <p class="section-kicker">Dashboard</p>
-            <h2 id="dashboardTitle" class="section-title">Welcome back, Demo Learner</h2>
-            <p class="section-copy">Upload notes, generate flashcards, and practice with a fast four-option quiz built for active recall.</p>
-          </div>
-          <div class="dashboard-photo-wrap" aria-hidden="true">
-            <img class="dashboard-photo" src="https://images.pexels.com/photos/4144224/pexels-photo-4144224.jpeg?auto=compress&cs=tinysrgb&w=900" alt="">
-          </div>
-        </section>
-
-        <section class="stats-grid" aria-label="Study statistics">
-          <div class="stat-card">
-            <span class="stat-icon"><i class="fa-solid fa-book-open" aria-hidden="true"></i></span>
-            <div>
-              <strong>3</strong>
-              <span>notes uploaded</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon"><i class="fa-solid fa-sparkles" aria-hidden="true"></i></span>
-            <div>
-              <strong>2</strong>
-              <span>quizzes generated</span>
-            </div>
-          </div>
-          <div class="stat-card">
-            <span class="stat-icon"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
-            <div>
-              <strong>85%</strong>
-              <span>average score</span>
-            </div>
-          </div>
-        </section>
-
-        <section class="dashboard-actions" aria-label="Dashboard actions">
-          <button id="goToUploadBtn" class="dashboard-card" type="button">
-            <span class="card-icon"><i class="fa-solid fa-file-pdf" aria-hidden="true"></i></span>
-            <span>
-              <span class="card-title">Upload Notes PDF</span>
-              <span class="card-text">Send a PDF into the demo AI generator and jump straight into a fresh quiz.</span>
-            </span>
-          </button>
-
-          <button id="goToQuizBtn" class="dashboard-card" type="button">
-            <span class="card-icon"><i class="fa-solid fa-brain" aria-hidden="true"></i></span>
-            <span>
-              <span class="card-title">AI Flashcard Quiz</span>
-              <span class="card-text">Practice with four choices, instant feedback, and a final score summary.</span>
-            </span>
-          </button>
-        </section>
-      </div>
+  <!-- PAGE 5: QUIZ (existing quiz page) -->
+  <div id="page5" class="page page-app" aria-hidden="true">
+    <div class="page-shell">
+      <header class="top-bar">
+        <button class="top-brand top-brand-button backDashboardBtn" type="button"><i class="fa-solid fa-graduation-cap"></i> StudyGenius</button>
+        <button class="btn btn-ghost btn-small backDashboardBtn" type="button"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+      </header>
+      <section>
+        <p class="section-kicker">Practice Mode</p>
+        <h2 class="section-title">AI Flashcard Quiz | 4 Options</h2>
+        <p id="quizGeneratedNotice" class="quiz-notice">✅ AI generated quiz from your notes!</p>
+        <div class="quiz-layout">
+          <article class="quiz-card">
+            <div class="quiz-head"><div><span id="questionCounter" class="meta-pill"><i class="fa-solid fa-list-ol"></i> Question 1 of 3</span><div class="quiz-meta"><span id="scoreDisplay" class="meta-pill"><i class="fa-solid fa-star"></i> Score: 0 / 3</span><span id="quizSource" class="meta-pill"><i class="fa-solid fa-layer-group"></i> Default study skills</span></div></div></div>
+            <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+            <div id="quizContent"><h3 id="questionText" class="question-text">Question text loads here.</h3><div id="optionsContainer" class="options-grid"></div><div class="quiz-controls"><button id="nextQuestionBtn" class="btn btn-accent" disabled><i class="fa-solid fa-forward"></i> Next Question</button><button id="restartQuizBtn" class="btn btn-ghost"><i class="fa-solid fa-rotate-right"></i> Restart Quiz</button><button class="btn btn-ghost backDashboardBtn"><i class="fa-solid fa-table-columns"></i> Back to Dashboard</button></div></div>
+            <div id="resultPanel" class="result-panel"><div class="result-icon"><i class="fa-solid fa-medal"></i></div><h3 id="finalScoreTitle">Final Score</h3><p id="finalScoreMessage">Your result appears here.</p><div class="quiz-controls"><button id="playAgainBtn" class="btn btn-accent"><i class="fa-solid fa-play"></i> Play Again</button><button id="focusFlashcardsBtn" class="btn btn-coral"><i class="fa-solid fa-note-sticky"></i> Make AI Flashcards from Notes</button><button class="btn btn-ghost backDashboardBtn"><i class="fa-solid fa-table-columns"></i> Back to Dashboard</button></div></div>
+          </article>
+          <aside id="notesFlashcardTool" class="notes-card"><h3><i class="fa-solid fa-note-sticky"></i> Notes to Flashcards</h3><p class="section-copy">Paste short notes and create quick AI-style flashcards in the browser.</p><textarea id="notesInput" placeholder="Example: Active recall means testing yourself before checking notes. Spaced repetition improves memory by reviewing at growing intervals."></textarea><div class="button-row"><button id="makeFlashcardsBtn" class="btn btn-coral"><i class="fa-solid fa-wand-sparkles"></i> Make AI Flashcards</button></div><p id="flashcardMessage" class="flash-message"></p><div id="flashcardOutput" class="flashcard-output"></div></aside>
+        </div>
+      </section>
     </div>
+  </div>
 
-    <div id="page4" class="page page-app" aria-hidden="true">
-      <div class="page-shell">
-        <header class="top-bar">
-          <button class="top-brand top-brand-button backDashboardBtn" type="button" aria-label="StudyGenius dashboard">
-            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
-            StudyGenius
-          </button>
-          <button class="btn btn-ghost btn-small backDashboardBtn" type="button">
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-            Back to Dashboard
-          </button>
-        </header>
-
-        <section aria-labelledby="uploadTitle">
-          <p class="section-kicker">AI Quiz Builder</p>
-          <h2 id="uploadTitle" class="section-title">Upload Your Notes (PDF)</h2>
-          <p class="section-copy">The PDF is not parsed in this demo; StudyGenius simulates AI output with a fresh quiz dataset.</p>
-
-          <div class="upload-card">
-            <div class="upload-zone">
-              <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
-              <label class="file-control" for="pdfInput">
-                <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
-                Choose PDF
-                <input id="pdfInput" type="file" accept=".pdf,application/pdf">
-              </label>
-              <p id="selectedFileName" class="file-name">No PDF selected yet.</p>
-            </div>
-
-            <div class="button-row">
-              <button id="generateQuizBtn" class="btn btn-accent" type="button">
-                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-                Generate AI Flashcards &amp; Quiz
-              </button>
-              <button class="btn btn-ghost backDashboardBtn" type="button">
-                <i class="fa-solid fa-table-columns" aria-hidden="true"></i>
-                Back to Dashboard
-              </button>
-            </div>
-
-            <div id="generationLoader" class="loader-row" role="status" aria-live="polite">
-              <span class="spinner" aria-hidden="true"></span>
-              Building your AI flashcards...
-            </div>
-
-            <p id="generationSuccess" class="success-message" role="status">✅ AI generated quiz from your notes!</p>
+  <!-- NEW PAGE 6: DEDICATED SUMMARY PAGE -->
+  <div id="page6" class="page page-app" aria-hidden="true">
+    <div class="page-shell">
+      <header class="top-bar">
+        <button class="top-brand top-brand-button backDashboardBtn" type="button"><i class="fa-solid fa-graduation-cap"></i> StudyGenius</button>
+        <button class="btn btn-ghost btn-small backDashboardBtn" type="button"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</button>
+      </header>
+      <section class="summary-page">
+        <p class="section-kicker">AI Summary Studio</p>
+        <h2 class="section-title">📄 Generate a Smart Summary</h2>
+        <p class="section-copy">Upload a PDF and let our AI extract the most important points. Your summaries are saved and displayed here.</p>
+        <div class="upload-card summary-upload">
+          <div class="upload-zone">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <label class="file-control" for="summaryPdfInput"><i class="fa-solid fa-folder-open"></i> Choose PDF for Summary<input id="summaryPdfInput" type="file" accept=".pdf,application/pdf"></label>
+            <p id="summaryFileName" class="file-name">No PDF selected.</p>
           </div>
-        </section>
-      </div>
-    </div>
-
-    <div id="page5" class="page page-app" aria-hidden="true">
-      <div class="page-shell">
-        <header class="top-bar">
-          <button class="top-brand top-brand-button backDashboardBtn" type="button" aria-label="StudyGenius dashboard">
-            <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
-            StudyGenius
-          </button>
-          <button class="btn btn-ghost btn-small backDashboardBtn" type="button">
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-            Back to Dashboard
-          </button>
-        </header>
-
-        <section aria-labelledby="quizTitle">
-          <p class="section-kicker">Practice Mode</p>
-          <h2 id="quizTitle" class="section-title">AI Flashcard Quiz | 4 Options</h2>
-          <p id="quizGeneratedNotice" class="quiz-notice" role="status">✅ AI generated quiz from your notes!</p>
-
-          <div class="quiz-layout">
-            <article class="quiz-card" aria-live="polite">
-              <div class="quiz-head">
-                <div>
-                  <span id="questionCounter" class="meta-pill">
-                    <i class="fa-solid fa-list-ol" aria-hidden="true"></i>
-                    Question 1 of 3
-                  </span>
-                  <div class="quiz-meta">
-                    <span id="scoreDisplay" class="meta-pill">
-                      <i class="fa-solid fa-star" aria-hidden="true"></i>
-                      Score: 0 / 3
-                    </span>
-                    <span id="quizSource" class="meta-pill">
-                      <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-                      Default study skills
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="progress-track" aria-hidden="true">
-                <div id="progressFill" class="progress-fill"></div>
-              </div>
-
-              <div id="quizContent">
-                <h3 id="questionText" class="question-text">Question text loads here.</h3>
-                <div id="optionsContainer" class="options-grid"></div>
-
-                <div class="quiz-controls">
-                  <button id="nextQuestionBtn" class="btn btn-accent" type="button" disabled>
-                    <i class="fa-solid fa-forward" aria-hidden="true"></i>
-                    Next Question
-                  </button>
-                  <button id="restartQuizBtn" class="btn btn-ghost" type="button">
-                    <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
-                    Restart Quiz
-                  </button>
-                  <button class="btn btn-ghost backDashboardBtn" type="button">
-                    <i class="fa-solid fa-table-columns" aria-hidden="true"></i>
-                    Back to Dashboard
-                  </button>
-                </div>
-              </div>
-
-              <div id="resultPanel" class="result-panel">
-                <div class="result-icon">
-                  <i class="fa-solid fa-medal" aria-hidden="true"></i>
-                </div>
-                <h3 id="finalScoreTitle">Final Score</h3>
-                <p id="finalScoreMessage">Your result appears here.</p>
-                <div class="quiz-controls">
-                  <button id="playAgainBtn" class="btn btn-accent" type="button">
-                    <i class="fa-solid fa-play" aria-hidden="true"></i>
-                    Play Again
-                  </button>
-                  <button id="focusFlashcardsBtn" class="btn btn-coral" type="button">
-                    <i class="fa-solid fa-note-sticky" aria-hidden="true"></i>
-                    Make AI Flashcards from Notes
-                  </button>
-                  <button class="btn btn-ghost backDashboardBtn" type="button">
-                    <i class="fa-solid fa-table-columns" aria-hidden="true"></i>
-                    Back to Dashboard
-                  </button>
-                </div>
-              </div>
-            </article>
-
-            <aside id="notesFlashcardTool" class="notes-card" aria-labelledby="notesToolTitle">
-              <h3 id="notesToolTitle">
-                <i class="fa-solid fa-note-sticky" aria-hidden="true"></i>
-                Notes to Flashcards
-              </h3>
-              <p class="section-copy">Paste short notes and create quick AI-style flashcards in the browser.</p>
-              <textarea id="notesInput" placeholder="Example: Active recall means testing yourself before checking notes. Spaced repetition improves memory by reviewing at growing intervals."></textarea>
-              <div class="button-row">
-                <button id="makeFlashcardsBtn" class="btn btn-coral" type="button">
-                  <i class="fa-solid fa-wand-sparkles" aria-hidden="true"></i>
-                  Make AI Flashcards
-                </button>
-              </div>
-              <p id="flashcardMessage" class="flash-message" role="status"></p>
-              <div id="flashcardOutput" class="flashcard-output" aria-live="polite"></div>
-            </aside>
+          <div class="button-row">
+            <button id="generateSummaryPageBtn" class="btn btn-coral" type="button"><i class="fa-solid fa-file-lines"></i> Generate AI Summary</button>
           </div>
-        </section>
-      </div>
+          <div id="summaryPageLoader" class="loader-row"><span class="spinner"></span> Analysing your document...</div>
+          <div id="summaryResultCard" class="summary-card" style="display: none;">
+            <h4><i class="fa-solid fa-pen-nib"></i> AI Summary</h4>
+            <p id="summaryPageText"></p>
+            <button id="copySummaryBtn" class="btn btn-ghost btn-small" style="margin-top: 12px;"><i class="fa-regular fa-copy"></i> Copy to Clipboard</button>
+          </div>
+        </div>
+        <div class="summary-history" id="summaryHistory">
+          <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Summaries</h3>
+          <div id="historyList"></div>
+        </div>
+      </section>
     </div>
-  </main>
-
-  <script src="script.js"></script>
+  </div>
+</main>
+<script src="script.js"></script>
 </body>
 </html>
