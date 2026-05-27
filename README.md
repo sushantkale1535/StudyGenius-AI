@@ -1,6 +1,6 @@
 # StudyGenius – AI Study Assistant 
 
-The ultimate AI study tool with:
+The ultimate AI study tool with
 
 # Demo Student Accounts
 
