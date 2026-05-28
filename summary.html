@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Summary | StudyGenius</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Contextual presentation layouts specific to Summary Module */
+    .summary-page {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .summary-card {
+      background: var(--panel-strong);
+      border-radius: 24px;
+      padding: 32px;
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: var(--shadow-soft);
+      margin-top: 28px;
+      animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .summary-card h4 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #summaryText {
+      font-size: 0.975rem;
+      color: var(--ink);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* History layout panels mapping */
+    .summary-history {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+    }
+
+    .summary-history h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .history-list-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .history-item-box {
+      background: var(--panel);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.2s;
+    }
+
+    .history-item-box:hover {
+      background: #ffffff;
+      border-color: var(--line);
+      transform: translateY(-2px);
+    }
+
+    .history-item-box p {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .history-item-box small {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .empty-history-text {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-style: italic;
+      padding: 16px 0;
+    }
+
+    .btn-coral {
+      background: linear-gradient(135deg, var(--coral), #ec4899);
+      color: #ffffff;
+      box-shadow: 0 8px 16px rgba(236, 72, 153, 0.2);
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<main class="app">
+  <div class="page page-app active">
+    <div class="page-shell">
+
+      <header class="top-bar">
+        <button class="top-brand top-brand-button" type="button" onclick="window.location.href='dashboard.html'">
+          <i class="fa-solid fa-graduation-cap"></i> StudyGenius
+        </button>
+        <button onclick="window.location.href='dashboard.html'" class="btn btn-ghost btn-small">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </button>
+      </header>
+
+      <section class="summary-page">
+        <p class="section-kicker">AI Summary Studio</p>
+        <h2 class="section-title">📄 Generate Smart Summary</h2>
+        <p class="section-copy">Upload PDF notes and let AI compress extensive reading materials into concise briefs.</p>
+
+        <div class="upload-card summary-upload">
+          <div class="upload-zone">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <label class="file-control" for="summaryPdfInput">
+              <i class="fa-solid fa-folder-open"></i> Choose PDF
+              <input id="summaryPdfInput" type="file" accept=".pdf,application/pdf" />
+            </label>
+            <p id="summaryFileName" class="file-name">No PDF selected.</p>
+          </div>
+
+          <div class="button-row">
+            <button id="generateSummaryBtn" class="btn btn-coral" type="button">
+              <i class="fa-solid fa-file-lines"></i> Generate AI Summary
+            </button>
+          </div>
+
+          <div id="summaryLoader" class="loader-row">
+            <span class="spinner"></span> Generating AI Summary...
+          </div>
+
+          <div id="summaryResultCard" class="summary-card" style="display:none;">
+            <h4><i class="fa-solid fa-wand-magic-sparkles"></i> AI Studio Output</h4>
+            <p id="summaryText"></p>
+
+            <div class="button-row" style="margin-top: 24px; border-top: 1px solid var(--line); padding-top: 20px;">
+              <button id="copySummaryBtn" class="btn btn-ghost btn-small">
+                <i class="fa-regular fa-copy"></i> Copy Summary
+              </button>
+              <button onclick="window.location.href='quiz.html'" class="btn btn-accent btn-small">
+                <i class="fa-solid fa-brain"></i> Open Interactive Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-history" id="summaryHistory">
+          <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Summaries</h3>
+          <div id="historyList" class="history-list-wrapper"></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+//  FILE ATTACHED TARGET ENGINE 
+const summaryPdfInput = document.getElementById("summaryPdfInput");
+const summaryFileName = document.getElementById("summaryFileName");
+
+summaryPdfInput.addEventListener("change", () => {
+  if (summaryPdfInput.files.length > 0) {
+    summaryFileName.textContent = summaryPdfInput.files[0].name;
+  } else {
+    summaryFileName.textContent = "No PDF selected.";
+  }
+});
+
+//  LIFECYCLE INITIAL LOAD CHECK
+const existingSummary = localStorage.getItem("summaryText");
+if (existingSummary) {
+  showSummary(existingSummary);
+}
+
+//  LIVE ENDPOINT COMPRESSION CYCLE 
+document.getElementById("generateSummaryBtn").addEventListener("click", async () => {
+  try {
+    const file = summaryPdfInput.files[0];
+    if (!file) {
+      alert("Please choose a local PDF file first.");
+      return;
+    }
+
+    const token = localStorage.getItem("studyGeniusToken");
+    if (!token) {
+      alert("Session expired. Please log in again.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    // Toggle interaction presentation loader flags
+    document.getElementById("summaryLoader").style.display = "flex";
+    document.getElementById("summaryResultCard").style.display = "none";
+
+    const formData = new FormData();
+    formData.append("pdf", file);
+
+    const response = await fetch("http://localhost:5000/api/study/generate", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData
+    });
+
+    const data = await response.json();
+    document.getElementById("summaryLoader").style.display = "none";
+
+    if (!response.ok) {
+      alert(data.error || "Generation payload transaction refused.");
+      return;
+    }
+
+    // Persist session changes across context boundaries
+    localStorage.setItem("summaryText", data.summary);
+    
+    // Check if configuration maps secondary telemetry fields down to core sets
+    if (data.quiz?.questions) {
+      localStorage.setItem("quizData", JSON.stringify(data.quiz.questions));
+    }
+    if (data.title) {
+      localStorage.setItem("quizTitle", data.title);
+    }
+
+    saveSummaryHistory(data.summary);
+    showSummary(data.summary);
+
+  } catch (error) {
+    console.error(error);
+    document.getElementById("summaryLoader").style.display = "none";
+    alert("System execution fault running the compression model engines.");
+  }
+});
+
+// ================= SHOW SUMMARY PLATFORM =================
+function showSummary(summary) {
+  const resultCard = document.getElementById("summaryResultCard");
+  const textContainer = document.getElementById("summaryText");
+
+  resultCard.style.display = "block";
+  textContainer.textContent = summary;
+}
+
+// ================= INTERACTIVE COPY UTILITIES =================
+document.getElementById("copySummaryBtn").addEventListener("click", function() {
+  const text = document.getElementById("summaryText").textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const originalContent = this.innerHTML;
+    this.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
+    this.style.borderColor = "var(--green)";
+    this.style.color = "var(--green)";
+    
+    setTimeout(() => {
+      this.innerHTML = originalContent;
+      this.style.borderColor = "";
+      this.style.color = "";
+    }, 2000);
+  });
+});
+
+//  LOCAL PROFILE HISTORICAL MANAGEMENTIC ENGINE 
+function saveSummaryHistory(summary) {
+  let history = JSON.parse(localStorage.getItem("summaryHistory")) || [];
+  
+  // Prevent filling with identical duplicate references
+  if (history.length === 0 || history[0].text !== summary) {
+    history.unshift({
+      text: summary,
+      time: new Date().toLocaleString()
+    });
+    localStorage.setItem("summaryHistory", JSON.stringify(history));
+  }
+  renderHistory();
+}
+
+function renderHistory() {
+  const historyList = document.getElementById("historyList");
+  const history = JSON.parse(localStorage.getItem("summaryHistory")) || [];
+
+  if (history.length === 0) {
+    historyList.innerHTML = `<p class="empty-history-text">No compiled history records are present on this device workspace.</p>`;
+    return;
+  }
+
+  historyList.innerHTML = "";
+  history.forEach(item => {
+    const box = document.createElement("div");
+    box.className = "history-item-box";
+    box.innerHTML = `
+      <p>${item.text}</p>
+      <small><i class="fa-regular fa-clock"></i> ${item.time}</small>
+    `;
+    
+    // Allow users to instantly restore historic profiles by clicking items
+    box.style.cursor = "pointer";
+    box.addEventListener("click", () => {
+      localStorage.setItem("summaryText", item.text);
+      showSummary(item.text);
+      window.scrollTo({ top: document.getElementById("summaryResultCard").offsetTop - 40, behavior: 'smooth' });
+    });
+
+    historyList.appendChild(box);
+  });
+}
+
+// Initialize historical metrics
+renderHistory();
+</script>
+</body>
+</html>

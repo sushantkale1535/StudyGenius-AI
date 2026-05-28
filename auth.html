@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auth | StudyGenius</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .auth-container-card {
+      width: 100%;
+      max-width: 480px;
+      padding: 40px;
+      background: var(--panel-strong);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      animation: formEntryOpen 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .auth-logo-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--teal-dark);
+      margin-bottom: 24px;
+    }
+
+    .auth-main-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .auth-main-subtitle {
+      font-size: 0.92rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 6px;
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    .input-field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+
+    .input-field-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .input-field-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-field-box i {
+      position: absolute;
+      left: 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+
+    .input-field-box input {
+      width: 100%;
+      height: 48px;
+      padding: 10px 16px 10px 44px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      color: var(--ink);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .input-field-box input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    }
+
+    .input-field-box input:focus + i {
+      color: var(--blue);
+    }
+
+    .auth-footer-toggle {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .auth-footer-toggle a {
+      color: var(--coral);
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .auth-footer-toggle a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      color: var(--red);
+      border: 1px solid #fee2e2;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 15px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @keyframes formEntryOpen {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 480px) {
+      .auth-container-card {
+        padding: 32px 20px;
+      }
+      .auth-main-title {
+        font-size: 1.6rem;
+      }
+    }
+  </style>
+</head>
+<body class="page-app">
+
+  <div class="auth-container-card">
+
+    <div class="auth-logo-brand">
+      <i class="fa-solid fa-graduation-cap"></i>
+      StudyGenius
+    </div>
+
+    <h1 class="auth-main-title" id="authMainTitle">Create an industrial account</h1>
+    <p class="auth-main-subtitle" id="authSubText">Sign up below to instantiate a persistent database study session workspace.</p>
+
+    <form id="loginForm" novalidate>
+
+      <div class="input-field-group" id="nameFieldContainer" style="display: block;">
+        <label for="nameInput">Full Name</label>
+        <div class="input-field-box">
+          <input type="text" id="nameInput" placeholder="Rohit Sharma" />
+          <i class="fa-solid fa-user"></i>
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label for="userIdInput">Email Address</label>
+        <div class="input-field-box">
+          <input type="email" id="userIdInput" placeholder="name@domain.com" required />
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+      </div>
+
+      <div class="input-field-group">
+        <label for="passwordInput">Password</label>
+        <div class="input-field-box">
+          <input type="password" id="passwordInput" placeholder="••••••••" required />
+          <i class="fa-solid fa-lock"></i>
+        </div>
+      </div>
+
+      <p id="loginError" class="error-message"></p>
+
+      <button type="submit" class="btn btn-accent" id="authSubmitBtn" style="width: 100%; margin-top: 10px;">
+        <i class="fa-solid fa-user-plus"></i> <span id="authBtnText">Register Account</span>
+      </button>
+
+    </form>
+
+    <div class="auth-footer-toggle">
+      <span id="toggleDisplayLabel">Already have an account? </span>
+      <a id="toggleAuthModeLink" href="#">Sign In instead</a>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard | StudyGenius</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+<main class="app">
+<div class="page page-app active">
+<div class="page-shell">
+
+<header class="top-bar">
+  <button class="top-brand top-brand-button" type="button" onclick="window.location.reload()">
+    <i class="fa-solid fa-graduation-cap"></i>
+    StudyGenius
+  </button>
+
+  <div class="header-right">
+    <span id="dashboardUserPill" class="user-pill">
+      <i class="fa-solid fa-user-astronaut"></i>
+      Demo Learner
+    </span>
+
+    <button id="logoutBtn" class="btn btn-ghost btn-small">
+      <i class="fa-solid fa-sign-out-alt"></i>
+      Logout
+    </button>
+  </div>
+</header>
+
+<section class="dashboard-hero">
+  <div class="dashboard-copy">
+    <p class="section-kicker">Dashboard</p>
+    <h2 id="dashboardTitle" class="section-title">Welcome Back</h2>
+    <p class="section-copy">
+      Upload PDF notes, generate quizzes, summaries and flashcards.
+    </p>
+  </div>
+
+  <div class="dashboard-photo-wrap">
+    <img class="dashboard-photo" src="https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=900" alt="Study" />
+  </div>
+</section>
+
+<section class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+      <i class="fa-solid fa-book-open"></i>
+    </span>
+    <div>
+      <strong id="notesCount">0</strong>
+      <span>notes uploaded</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+      <i class="fa-solid fa-sparkles"></i>
+    </span>
+    <div>
+      <strong id="quizCount">0</strong>
+      <span>quizzes generated</span>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-icon" style="background: linear-gradient(135deg, #fa709a, #fee140);">
+      <i class="fa-solid fa-trophy"></i>
+    </span>
+    <div>
+      <strong id="avgScore">0%</strong>
+      <span>average score</span>
+    </div>
+  </div>
+</section>
+
+<section class="carousel-section">
+  <div class="carousel-container">
+    <div class="carousel-slide active" style="background:#ffe8df;">
+      <i class="fa-solid fa-lightbulb" style="color:#f97316;"></i>
+      <p>Active recall boosts long-term memory.</p>
+    </div>
+
+    <div class="carousel-slide" style="background:#e0f7fa;">
+      <i class="fa-solid fa-clock" style="color:#0f766e;"></i>
+      <p>Review after 1 day, 3 days, then 1 week.</p>
+    </div>
+
+    <div class="carousel-slide" style="background:#e8f0fe;">
+      <i class="fa-solid fa-brain" style="color:#2563eb;"></i>
+      <p>Convert notes to flashcards for faster revision.</p>
+    </div>
+
+    <button class="carousel-prev">❮</button>
+    <button class="carousel-next">❯</button>
+  </div>
+</section>
+
+<section class="dashboard-actions">
+  <button onclick="window.location.href='upload.html'" class="dashboard-card" style="border-top: 5px solid #f97316;">
+    <span class="card-icon" style="background: linear-gradient(135deg, #f97316, #f59e0b);">
+      <i class="fa-solid fa-file-pdf"></i>
+    </span>
+    <span>
+      <span class="card-title">Upload Notes PDF</span>
+      <span class="card-text">Generate AI flashcards & quiz from notes.</span>
+    </span>
+  </button>
+
+  <button onclick="window.location.href='quiz.html'" class="dashboard-card" style="border-top: 5px solid #0f766e;">
+    <span class="card-icon" style="background: linear-gradient(135deg, #0f766e, #2563eb);">
+      <i class="fa-solid fa-brain"></i>
+    </span>
+    <span>
+      <span class="card-title">AI Flashcard Quiz</span>
+      <span class="card-text">Practice generated quiz.</span>
+    </span>
+  </button>
+
+  <button onclick="window.location.href='summary.html'" class="dashboard-card" style="border-top: 5px solid #8b5cf6;">
+    <span class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);">
+      <i class="fa-solid fa-file-lines"></i>
+    </span>
+    <span>
+      <span class="card-title">AI Summary</span>
+      <span class="card-text">View generated summaries.</span>
+    </span>
+  </button>
+</section>
+
+</div>
+</div>
+</main>
+
+<script>
+
+// ROUTE SECURITY REVELATION GUARD
+const token = localStorage.getItem("studyGeniusToken");
+const userRaw = localStorage.getItem("studyGeniusUser");
+
+if (!token || !userRaw) {
+  window.location.href = "auth.html";
+} else {
+  const user = JSON.parse(userRaw);
+  const titleEl = document.getElementById("dashboardTitle");
+  const pillEl = document.getElementById("dashboardUserPill");
+  
+  if (titleEl) titleEl.textContent = `Welcome Back, ${user.name}`;
+  if (pillEl) pillEl.innerHTML = `<i class="fa-solid fa-user-astronaut"></i> ${user.name}`;
+}
+
+
+// LIVE METRICS SYNCHRONIZATION PIPELINE
+
+async function syncLiveDashboardMetrics() {
+  const notesCountEl = document.getElementById("notesCount");
+  const quizCountEl = document.getElementById("quizCount");
+  const avgScoreEl = document.getElementById("avgScore");
+  
+  // Explicit local read ensures we catch the most up-to-date storage values
+  const activeSessionToken = localStorage.getItem("studyGeniusToken");
+  if (!activeSessionToken) return;
+
+  try {
+    const response = await fetch("http://localhost:5000/api/study/history", {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${activeSessionToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response.ok) throw new Error("Failed syncing database metrics history arrays.");
+    const historyData = await response.json();
+
+    // 1. Live Notes Uploaded
+    const totalUploadedNotes = historyData.length;
+
+    // 2. Real Quizzes Generated Count (Nested array structure validation)
+    const totalGeneratedQuizzes = historyData.filter(doc => {
+      if (!doc.quiz) return false;
+      if (doc.quiz.questions && Array.isArray(doc.quiz.questions)) {
+        return doc.quiz.questions.length > 0;
+      }
+      if (Array.isArray(doc.quiz)) {
+        return doc.quiz.length > 0;
+      }
+      return false;
+    }).length;
+    
+    // 3. 💡 FIXED: Pull the live accuracy string we verified in your local storage screenshot
+    const realSavedScore = localStorage.getItem("latestQuizAccuracyScore");
+    
+    // Fallback to "40%" or whatever is saved if quizzes exist; fallback to "0%" if empty account
+    const calculatedScoreMetric = totalGeneratedQuizzes > 0 ? (realSavedScore || "0%") : "0";
+
+    // 4. Force DOM rendering updates instantly
+    if (notesCountEl) notesCountEl.textContent = totalUploadedNotes;
+    if (quizCountEl) quizCountEl.textContent = totalGeneratedQuizzes;
+    if (avgScoreEl) avgScoreEl.textContent = calculatedScoreMetric;
+
+  } catch (err) {
+    console.error("💥 Dashboard live counters sync error:", err);
+  }
+}
+
+syncLiveDashboardMetrics();
+
+// AUTOMATED SLIDE ACTION DRIVERS FOR CAROUSEL MODULES
+
+const slides = document.querySelectorAll(".carousel-slide");
+if (slides.length > 0) {
+  let currentSlide = 0;
+  setInterval(() => {
+    slides[currentSlide].classList.remove("active");
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add("active");
+  }, 5000);
+}
+
+// SECURE WORKSPACE SESSION CLEAN LOGOUT
+
+const logoutBtn = document.getElementById("logoutBtn");
+logoutBtn?.addEventListener("click", () => {
+  localStorage.removeItem("studyGeniusToken");
+  localStorage.removeItem("studyGeniusUser");
+  localStorage.removeItem("activeStudySessionId");
+  window.location.href = "auth.html";
+});
+</script>
+
+</body>
+</html>

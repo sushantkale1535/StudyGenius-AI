@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Upload Notes | StudyGenius</title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  />
+
+</head>
+
+<body>
+
+<main class="app">
+
+<div class="page page-app active">
+
+<div class="page-shell">
+
+<!--  HEADER  -->
+
+<header class="top-bar">
+
+  <button
+    class="top-brand top-brand-button"
+    type="button"
+  >
+
+    <i class="fa-solid fa-graduation-cap"></i>
+
+    StudyGenius
+
+  </button>
+
+
+  <button
+    onclick="
+      window.location.href='dashboard.html'
+    "
+    class="btn btn-ghost btn-small"
+    type="button"
+  >
+
+    <i class="fa-solid fa-arrow-left"></i>
+
+    Back to Dashboard
+
+  </button>
+
+</header>
+
+
+
+<!-- CONTENT -->
+
+<section>
+
+  <p class="section-kicker">
+
+    AI Quiz Builder
+
+  </p>
+
+  <h2 class="section-title">
+
+    Upload Your Notes (PDF)
+
+  </h2>
+
+  <p class="section-copy">
+
+    Upload a PDF and generate
+    AI flashcards and quiz questions.
+
+  </p>
+
+
+
+  <!--  UPLOAD CARD -->
+
+  <div class="upload-card">
+
+    <div class="upload-zone">
+
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+
+      <label
+        class="file-control"
+        for="pdfInput"
+      >
+
+        <i class="fa-solid fa-folder-open"></i>
+
+        Choose PDF
+
+        <input
+          id="pdfInput"
+          type="file"
+          accept=".pdf,application/pdf"
+        />
+
+      </label>
+
+      <p
+        id="selectedFileName"
+        class="file-name"
+      >
+
+        No PDF selected yet.
+
+      </p>
+
+    </div>
+
+
+
+    <!--  BUTTONS  -->
+
+    <div class="button-row">
+
+      <button
+        id="generateQuizBtn"
+        class="btn btn-accent"
+        type="button"
+      >
+
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+        Generate AI Flashcards & Quiz
+
+      </button>
+
+
+
+      <button
+        onclick="
+          window.location.href='dashboard.html'
+        "
+        class="btn btn-ghost"
+        type="button"
+      >
+
+        <i class="fa-solid fa-table-columns"></i>
+
+        Back to Dashboard
+
+      </button>
+
+    </div>
+
+
+
+    <!--  LOADER  -->
+
+    <div
+      id="generationLoader"
+      class="loader-row"
+      style="display:none;"
+    >
+
+      <span class="spinner"></span>
+
+      Building your AI flashcards...
+
+    </div>
+
+
+
+    <!-- SUCCESS -->
+
+    <p
+      id="generationSuccess"
+      class="success-message"
+      style="display:none;"
+    >
+
+      ✅ AI generated quiz successfully!
+
+    </p>
+
+  </div>
+
+</section>
+
+</div>
+
+</div>
+
+</main>
+
+
+
+<script>
+
+//  FILE NAME 
+
+const pdfInput =
+  document.getElementById("pdfInput");
+
+const selectedFileName =
+  document.getElementById("selectedFileName");
+
+pdfInput.addEventListener(
+  "change",
+  () => {
+
+    if (pdfInput.files.length > 0) {
+
+      selectedFileName.textContent =
+        pdfInput.files[0].name;
+
+    } else {
+
+      selectedFileName.textContent =
+        "No PDF selected yet.";
+    }
+  }
+);
+
+
+
+//  GENERATE QUIZ  
+
+const generateQuizBtn =
+  document.getElementById(
+    "generateQuizBtn"
+  );
+
+generateQuizBtn.addEventListener(
+  "click",
+  async () => {
+
+    try {
+
+      const file =
+        pdfInput.files[0];
+
+      if (!file) {
+
+        alert("Please upload PDF");
+
+        return;
+      }
+
+      const token = localStorage.getItem("studyGeniusToken");
+
+      if (!token) {
+
+        alert("Login required");
+
+        window.location.href =
+          "index.html";
+
+        return;
+      }
+
+      const formData =
+        new FormData();
+
+      formData.append("pdf", file);
+
+
+
+      // SHOW LOADER
+
+      document.getElementById(
+        "generationLoader"
+      ).style.display = "flex";
+
+
+
+      // API CALL
+
+      const response =
+        await fetch(
+          "http://localhost:5000/api/study/generate",
+          {
+            method: "POST",
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`
+            },
+
+            body: formData
+          }
+        );
+
+
+
+      const data =
+        await response.json();
+
+      console.log(data);
+
+
+
+      // HIDE LOADER
+
+      document.getElementById(
+        "generationLoader"
+      ).style.display = "none";
+
+
+
+      if (!response.ok) {
+
+        alert(data.error);
+
+        return;
+      }
+
+
+
+      // SUCCESS MESSAGE
+
+      document.getElementById(
+        "generationSuccess"
+      ).style.display = "block";
+
+
+
+      // STORE QUIZ DATA
+
+      localStorage.setItem(
+        "quizData",
+        JSON.stringify(
+          data.quiz.questions
+        )
+      );
+
+
+
+      // STORE SUMMARY
+
+      localStorage.setItem(
+        "summaryText",
+        data.summary
+      );
+
+
+
+      // STORE TITLE
+
+      localStorage.setItem(
+        "quizTitle",
+        data.title
+      );
+
+
+
+      // REDIRECT TO QUIZ PAGE
+
+      setTimeout(() => {
+
+        window.location.href =
+          "quiz.html";
+
+      }, 1500);
+
+
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Failed to generate AI quiz"
+      );
+    }
+  }
+);
+
+</script>
+
+</body>
+</html>

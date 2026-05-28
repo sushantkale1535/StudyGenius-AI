@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz | StudyGenius</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Contextual overrides fixing the flat unformatted text display layout */
+    .quiz-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      margin-top: 24px;
+    }
+
+    .quiz-card {
+      background: #ffffff !important;
+      padding: 32px;
+      border-radius: 24px;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+    }
+
+    .quiz-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .quiz-meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .meta-pill {
+      background: var(--sky);
+      color: var(--blue);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #scoreDisplay {
+      background: var(--peach);
+      color: var(--coral);
+    }
+
+    #quizSource {
+      background: #f1f5f9;
+      color: var(--muted);
+    }
+
+    /* Progress Tracker Base */
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      border-radius: 999px;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .question-text {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 24px;
+    }
+
+    /* Column grid layout for Multiple Choice Options */
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 16px 24px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: var(--ink);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      transform: translateX(4px);
+    }
+
+    .option-btn.correct {
+      background: var(--mint) !important;
+      border-color: var(--green) !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+
+    .option-btn.wrong {
+      background: #fee2e2 !important;
+      border-color: var(--red) !important;
+      color: #991b1b !important;
+    }
+
+    .quiz-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-top: 24px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 24px;
+    }
+
+    @media (max-width: 480px) {
+      .quiz-controls .btn {
+        width: 100%;
+      }
+    }
+
+    /* Results layout customization panel */
+    .result-panel {
+      text-align: center;
+      padding: 20px 10px;
+    }
+
+    .result-icon {
+      font-size: 4rem;
+      color: var(--gold);
+      margin-bottom: 16px;
+      animation: popOpen 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #finalScoreTitle {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    #finalScoreMessage {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-top: 4px;
+      margin-bottom: 12px;
+    }
+
+    @keyframes popOpen {
+      from { transform: scale(0.3); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<main class="app">
+  <div class="page page-app active">
+    <div class="page-shell">
+
+      <header class="top-bar">
+        <button class="top-brand top-brand-button" type="button" onclick="window.location.href='dashboard.html'">
+          <i class="fa-solid fa-graduation-cap"></i> StudyGenius
+        </button>
+        <button onclick="window.location.href='dashboard.html'" class="btn btn-ghost btn-small">
+          <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </button>
+      </header>
+
+      <section>
+        <p class="section-kicker">Practice Mode</p>
+        <h2 class="section-title">AI Flashcard Quiz</h2>
+        <p id="quizGeneratedNotice" class="success-message" style="display: block; margin-bottom: 24px; text-align: left;">
+          <i class="fa-solid fa-circle-check"></i> AI generated quiz from your notes successfully!
+        </p>
+
+        <div class="quiz-layout">
+          <article class="quiz-card">
+            
+            <div id="quizContent">
+              <div class="quiz-head">
+                <span id="questionCounter" class="meta-pill">
+                  <i class="fa-solid fa-list-ol"></i> Question 1
+                </span>
+                <div class="quiz-meta">
+                  <span id="scoreDisplay" class="meta-pill">
+                    <i class="fa-solid fa-star"></i> Score: 0
+                  </span>
+                  <span id="quizSource" class="meta-pill">
+                    <i class="fa-solid fa-layer-group"></i> Practice Stack
+                  </span>
+                </div>
+              </div>
+
+              <div class="progress-track">
+                <div id="progressFill" class="progress-fill"></div>
+              </div>
+
+              <h3 id="questionText" class="question-text">Loading question...</h3>
+              <div id="optionsContainer" class="options-grid"></div>
+
+              <div class="quiz-controls">
+                <button id="nextQuestionBtn" class="btn btn-accent" disabled>
+                  <i class="fa-solid fa-forward"></i> Next Question
+                </button>
+                <button id="restartQuizBtn" class="btn btn-ghost">
+                  <i class="fa-solid fa-rotate-right"></i> Restart Quiz
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="btn btn-ghost">
+                  <i class="fa-solid fa-table-columns"></i> Dashboard
+                </button>
+              </div>
+            </div>
+
+            <div id="resultPanel" class="result-panel" style="display:none;">
+              <div class="result-icon">
+                <i class="fa-solid fa-medal"></i>
+              </div>
+              <h3 id="finalScoreTitle">Final Score</h3>
+              <p id="finalScoreMessage">Your result appears here.</p>
+
+              <div class="quiz-controls" style="justify-content: center;">
+                <button id="playAgainBtn" class="btn btn-accent">
+                  <i class="fa-solid fa-play"></i> Play Again
+                </button>
+                <button onclick="window.location.href='summary.html'" class="btn btn-ghost" style="background: var(--peach); color: var(--coral); border-color: rgba(249,115,22,0.2);">
+                  <i class="fa-solid fa-file-lines"></i> View Summary
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="btn btn-ghost">
+                  <i class="fa-solid fa-table-columns"></i> Dashboard
+                </button>
+              </div>
+            </div>
+
+          </article>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>
+
+<script>
+// Mock data recovery placeholder logic
+let rawQuizData = JSON.parse(localStorage.getItem("quizData")) || [];
+
+// AUTO-FIX: Parsers checking if incoming data options are squashed into a single text array string
+let quizData = rawQuizData.map(item => {
+  if (item.options && item.options.length === 1 && typeof item.options[0] === 'string' && item.options[0].includes('B)')) {
+    // Regular expression block that systematically extracts strings tracking tags: A), B), C), D)
+    const rawStr = item.options[0];
+    const parsedOptions = rawStr
+      .split(/\s*[A-D]\)\s*/)
+      .map(s => s.trim())
+      .filter(Boolean);
+    
+    return {
+      ...item,
+      options: parsedOptions
+    };
+  }
+  return item;
+});
+
+let currentQuestionIndex = 0;
+let score = 0;
+let answerSelected = false;
+
+const questionText = document.getElementById("questionText");
+const optionsContainer = document.getElementById("optionsContainer");
+const questionCounter = document.getElementById("questionCounter");
+const scoreDisplay = document.getElementById("scoreDisplay");
+const nextQuestionBtn = document.getElementById("nextQuestionBtn");
+const progressFill = document.getElementById("progressFill");
+
+function renderQuestion() {
+  if (currentQuestionIndex >= quizData.length) {
+    showFinalScore();
+    return;
+  }
+
+  answerSelected = false;
+  nextQuestionBtn.disabled = true;
+  const currentQuestion = quizData[currentQuestionIndex];
+
+  questionCounter.innerHTML = `<i class="fa-solid fa-list-ol"></i> Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+  scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> Score: ${score}`;
+  questionText.textContent = currentQuestion.question;
+
+  // Track progress indicator scale
+  progressFill.style.width = `${((currentQuestionIndex) / quizData.length) * 100}%`;
+  optionsContainer.innerHTML = "";
+
+  // Dynamic distribution of separate column selection triggers
+  currentQuestion.options.forEach((option) => {
+    const button = document.createElement("button");
+    button.className = "option-btn";
+    button.textContent = option;
+
+    button.addEventListener("click", () => {
+      if (answerSelected) return;
+      answerSelected = true;
+      nextQuestionBtn.disabled = false;
+
+      const allButtons = document.querySelectorAll(".option-btn");
+      allButtons.forEach(btn => {
+        btn.disabled = true;
+        // Check text signature matches clean or parsed variants
+        if (btn.textContent.trim() === currentQuestion.answer.trim()) {
+          btn.classList.add("correct");
+        }
+      });
+
+      if (option.trim() === currentQuestion.answer.trim()) {
+        score++;
+        scoreDisplay.innerHTML = `<i class="fa-solid fa-star"></i> Score: ${score}`;
+      } else {
+        button.classList.add("wrong");
+      }
+    });
+
+    optionsContainer.appendChild(button);
+  });
+}
+
+nextQuestionBtn.addEventListener("click", () => {
+  if (currentQuestionIndex >= quizData.length - 1) {
+    showFinalScore();
+  } else {
+    currentQuestionIndex++;
+    renderQuestion();
+  }
+});
+
+function showFinalScore() {
+  progressFill.style.width = "100%";
+  document.getElementById("quizContent").style.display = "none";
+  document.getElementById("resultPanel").style.display = "block";
+
+  const percent = quizData.length > 0 ? Math.round((score / quizData.length) * 100) : 0;
+  document.getElementById("finalScoreTitle").textContent = `Completed! Score: ${score}/${quizData.length}`;
+  document.getElementById("finalScoreMessage").textContent = `You achieved an accuracy score of ${percent}%`;
+  
+  // 💡 Match the precise key and append the string template so your dashboard reads it natively!
+  localStorage.setItem("latestQuizAccuracyScore", `${percent}%`);
+}
+
+function restartQuiz() {
+  currentQuestionIndex = 0;
+  score = 0;
+  answerSelected = false;
+  document.getElementById("quizContent").style.display = "block";
+  document.getElementById("resultPanel").style.display = "none";
+  renderQuestion();
+}
+
+document.getElementById("restartQuizBtn").addEventListener("click", restartQuiz);
+document.getElementById("playAgainBtn").addEventListener("click", restartQuiz);
+
+// Initialization lifecycle loop
+if (quizData.length === 0) {
+  alert("No quiz found. Please compile/upload source text datasets first.");
+  window.location.href = "upload.html";
+} else {
+  renderQuestion();
+}
+</script>
+
+</body>
+</html>
